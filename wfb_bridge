@@ -1,0 +1,117 @@
+[global]
+mode = ground
+loglevel = debug
+sysloglevel = debug
+sysloghost = localhost
+syslogperiod = 5
+statusperiod = 0.2
+maxqueuesize = 200
+frequency = 2432
+txpower = 58
+bitrate = 11
+mcs = 1
+stbc = 1
+ldpc = 1
+
+[device-ath9k_htc]
+frequency = 2432
+txpower = 58
+bitrate = 11
+mcs = 0
+stbc = 0
+ldpc = 0
+
+[device-rtl88xxau]
+frequency = 5220
+txpower = 45
+mcs = 1
+stbc = 1
+ldpc = 1
+
+[link-telemetry_down]
+name = Telemetry Downlink
+direction = down
+port = 1
+inport = 5555
+outport = 5556
+outhost = 127.0.0.1
+type = data
+priority = 2
+datarate = 0
+
+[link-telemetry_up]
+name = Telemetry Uplink
+direction = up
+port = 2
+inport = 5557
+outport = 5558
+inhost = 0.0.0.0
+outhost = 127.0.0.1
+type = data
+priority = 3
+datarate = 0
+
+[link-ft_up]
+name = FileTransfer Uplink
+direction = up
+port = 3
+inport = 6557
+outport = 6558
+outhost = 127.0.0.1
+type = data
+priority = 1
+datarate = 0
+
+[link-ft_down]
+name = FileTransfer Downlink
+direction = down
+port = 4
+inport = 6555
+outport = 6556
+outhost = 127.0.0.1
+type = data
+priority = 1
+datarate = 0
+
+[link-bench_up]
+name = Benchmark Uplink
+direction = up
+port = 5
+inport = 7557
+outport = 7558
+outhost = 127.0.0.1
+type = data
+priority = 3
+datarate = 0
+
+[link-bench_down]
+name = Benchmark Downlink
+direction = down
+port = 6
+inport = 7555
+outport = 7556
+outhost = 127.0.0.1
+type = data
+priority = 3
+datarate = 0
+
+[link-status_down]
+name = Downlink port for link status messages
+direction = down
+port = 7
+outport = 5800
+outhost = 127.0.0.1
+type = data
+priority = 15
+datarate = 0
+
+[link-status_up]
+name = Uplink port for link status messages
+direction = up
+port = 8
+outport = 5801
+outhost = 127.0.0.1
+type = data
+priority = 15
+datarate = 0
+
