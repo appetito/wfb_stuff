@@ -1,0 +1,16 @@
+[Unit]
+Description=WFB file server
+After=wfb_bridge.service
+
+[Service]
+Type=simple
+ExecStart=/home/pi/wfb_stuff/ft_serve.sh
+ExecReload=/bin/kill -9 $MAINPID
+ExecStop=/bin/kill -9 $MAINPID
+TimeoutStopSec=5s
+Restart=on-failure
+RestartSec=5s
+
+[Install]
+WantedBy=multi-user.target
+
