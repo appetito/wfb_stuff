@@ -1,0 +1,188 @@
+#
+# Non-MCS Datarates
+# -----------------
+#
+# Datarate  Mbps  Modulation
+# 0         5.5   DSSS
+# 1         11    DSSS
+# 2         18    ODFM
+# 3         24    ODFM
+# 4         36    ODFM
+# 5         48    ODFM
+# 6         54    ODFM
+#
+# MCS Datarates
+#
+# Datarate  Mbps  Modulation
+# 0         6.5   BPSK
+# 1         13    QPSK
+# 2         19.5  QPSK
+# 3         26    16-QAM
+# 4         39    16-QAM
+# 5         52    64-QAM
+# 6         58.5  64-QAM
+# 7         65    64-QAM
+# 8         13    BPSK
+# 9         26    QPSK
+# 10        39    QPSK
+# 11        52    16-QAM
+# 12        78    16-QAM
+# 13        104   64-QAM
+# 14        117   64-QAM
+# 15        130   64-QAM
+# 16        19.5  BPSK
+# 17        39    QPSK
+# 18        58.5  QPSK
+# 19        78    16-QAM
+# 20        117   16-QAM
+# 21        156   64-QAM
+# 22        175.5 64-QAM
+# 23        195   64-QAM
+# 24        26    BPSK
+# 25        52    QPSK
+# 26        78    QPSK
+# 27        104   16-QAM
+# 28        156   16-QAM
+# 29        208   64-QAM
+# 30        234   64-QAM
+# 31        260   64-QAM
+
+[global]
+loglevel = debug
+sysloglevel = debug
+sysloghost = localhost
+syslogperiod = 5
+statusperiod = 0.2
+maxqueuesize = 200
+
+
+
+[device-ar9271]
+frequency = 2432
+txpower = 45
+bitrate = 11
+mcs = 0
+stbc = 0
+ldpc = 0
+
+[device-ar7010]
+frequency = 2412
+txpower = 45
+bitrate = 11
+mcs = 0
+stbc = 0
+ldpc = 0
+
+[device-rtl8812au]
+frequency = 5280
+txpower = 45
+mcs = 1
+stbc = 1
+ldpc = 1
+
+
+
+
+[link-telemetry_down]
+name = Telemetry Downlink
+direction = down
+port = 1
+inport = 5555
+outports = 127.0.0.1:5556
+type = data
+priority = 2
+blocksize = 1400
+blocks = 1
+fec = 1
+datarate = 0
+
+[link-telemetry_up]
+name = Telemetry Uplink
+direction = up
+port = 2
+inport = 5557
+outports = 127.0.0.1:5558
+type = data
+priority = 2
+blocksize = 1400
+blocks = 1
+fec = 1
+datarate = 0
+
+[link-ft_up]
+name = FileTransfer Uplink
+direction = up
+port = 3
+inport = 6557
+outports = 127.0.0.1:6558
+type = data
+priority = 1
+blocksize = 1400
+blocks = 1
+fec = 1
+datarate = 0
+
+[link-ft_down]
+name = FileTransfer Downlink
+direction = down
+port = 4
+inport = 6555
+outports = 127.0.0.1:6556
+type = data
+priority = 1
+blocksize = 1400
+blocks = 1
+fec = 1
+datarate = 0
+
+[link-bench_up]
+name = Benchmark Uplink
+direction = up
+port = 5
+inport = 7557
+outports = 127.0.0.1:7558
+type = data
+priority = 3
+blocksize = 1400
+blocks = 1
+fec = 1
+datarate = 0
+
+[link-bench_down]
+name = Benchmark Downlink
+direction = down
+port = 6
+inport = 7555
+outports = 127.0.0.1:7556
+type = data
+priority = 3
+blocksize = 1400
+blocks = 1
+fec = 1
+datarate = 0
+
+
+
+
+[link-status_down]
+name = Downlink port for link status messages
+direction = down
+port = 7
+outports = 127.0.0.1:5800
+type = data
+priority = 15
+datarate = 4
+
+[link-status_up]
+name = Uplink port for link status messages
+direction = up
+port = 8
+outports = 127.0.0.1:5801
+type = data
+priority = 15
+datarate = 0
+
+[link-packed_status_down]
+name = UDP port to send packed status messages to
+direction = down
+outports = 127.0.0.1:5154
