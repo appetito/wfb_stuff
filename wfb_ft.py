@@ -337,7 +337,7 @@ class FtpServer(WFBNode):
 
 class FtpClient(WFBNode):
 
-    ACK_TIMEOUT = 0.01
+    ACK_TIMEOUT = 0.05
 
     def __init__(self, inport, outport):
         super().__init__(inport, outport)
