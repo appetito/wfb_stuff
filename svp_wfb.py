@@ -135,6 +135,7 @@ class Channel:
                     self.stat_transport.sendto(data.encode())
 
     async def stop(self):
+        logger.info("Stopping subprocesses")
         self.rx_proc.terminate()
         self.tx_proc.terminate()
 
@@ -142,9 +143,11 @@ class Channel:
 async def main(args):
     chan = Channel(args.mode, args.fec, args.iface)
     await chan.start()
-    while True:
-        await asyncio.sleep(1)
-
+    try:
+        while True:
+            await asyncio.sleep(1)
+    finally:
+        await chan.stop()
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='SVP WFB Launcher')
