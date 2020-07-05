@@ -37,7 +37,8 @@ Default: K='tx.key', k=8, n=12, udp_port=5600, radio_port=1 bandwidth=20 guard_i
 Radio MTU: 1446
 WFB version 19.2.16.44936-212f5c1d
 """
-logger = logging.getLogger(__name__)
+
+logger = logging.getLogger('main')
 logging.basicConfig(level='DEBUG', format="%(asctime)s %(levelname)-8s %(name)s: %(message)s")
 
 
@@ -61,52 +62,42 @@ class Channel:
     WFB Channel
     """
 
-    def __init__(self, mode, fec, iface):
+    def __init__(self, name, mode, iface, num, fec, udp_in, udp_out):
+        self.name = name
+        self.mode = mode
+        self.iface = iface
+        self.num = num
+        self.fec = fec
+        self.udp_in = udp_in
+        self.udp_out = udp_out
+
         self.rx_proc = None
         self.tx_proc = None
         self.stat_transport = None
-        self.counter = 0
-        self.mode = mode
-        self.fec = fec
-        self.iface = iface
-
-    # async def send_command(self, cmd, single_read=True, fin=False):
-    #     self.proc.stdin.write(cmd.encode() + b'\n')
-    #     await self.proc.stdin.drain()
-    #     ret = await self.proc.stdout.readline()
-    #     logger.info("Cmd: %s, ret 1:%s", cmd, ret)
-    #     if single_read is False:
-    #         ret = await self.proc.stdout.readline()
-    #         logger.info("Cmd: %s, ret 2:%s", cmd, ret)
-    #     if fin:
-    #         logger.info("Cmd read 3: %s", cmd)
-    #         await self.proc.stdout.readline()
-    #         logger.info("Cmd: %s, ret 3:%s", cmd, ret)
-
-    #     logger.info("Cmd: %s, ret: %s", cmd, ret)
-    #     return ret
 
     async def start(self):
         params = {
             'iface': self.iface,
             'mode': self.mode,
+            'udp_in': self.udp_in,
+            'udp_out': self.udp_out,
             'k': int(self.fec.split('/')[0]),
             'n': int(self.fec.split('/')[1]),
-            'rx_port': 1 if self.mode == 'ground' else 2,
-            'tx_port': 2 if self.mode == 'ground' else 1,
+            'rx_port': self.num[0] if self.mode == 'ground' else self.num[1],
+            'tx_port': self.num[1] if self.mode == 'ground' else self.num[0],
             'key': 'gs' if self.mode == 'ground' else 'drone'
         }
-        rx_proc_cmd = 'wfb_rx -K /etc/{key}.key -p {rx_port} -u 7556 -k {k} -n {n} {iface}'.format(**params)
-        tx_proc_cmd = 'wfb_tx -K /etc/{key}.key -p {tx_port} -u 7557 -k {k} -n {n} {iface}'.format(**params)
+        rx_proc_cmd = 'wfb_rx -K /etc/{key}.key -p {rx_port} -u {udp_out} -k {k} -n {n} {iface}'.format(**params)
+        tx_proc_cmd = 'wfb_tx -K /etc/{key}.key -p {tx_port} -u {udp_in} -k {k} -n {n} {iface}'.format(**params)
         
-        logger.info("Starting RX subprocess: %s", rx_proc_cmd)
+        logger.info("Chan %s starting RX subprocess: %s", self.name, rx_proc_cmd)
         self.rx_proc = await asyncio.create_subprocess_shell(
             rx_proc_cmd,
             stdin=subprocess.PIPE,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE)
 
-        logger.info("Starting TX subprocess: %s", tx_proc_cmd)
+        logger.info("Chan %s starting TX subprocess: %s", self.name, tx_proc_cmd)
         self.tx_proc = await asyncio.create_subprocess_shell(
             tx_proc_cmd,
             stdin=subprocess.PIPE,
@@ -121,7 +112,7 @@ class Channel:
         asyncio.create_task(self.report())
 
     async def report(self):
-        logger.info("Starting report task")
+        logger.info("Chan %s starting report task", self.name)
         while True:
             raw_data = await self.rx_proc.stdout.readline()
             raw_data = raw_data.decode()
@@ -129,25 +120,31 @@ class Channel:
             # 9638071\tANT\t0\t411:-75:-71:-68
             if 'ANT' in raw_data:
                 rssi_avg = raw_data.split(':')[-2]
-                logger.info("RX AVG RSSI: %s", rssi_avg)
+                logger.info("Chan %s RX avg RSSI: %s", self.name, rssi_avg)
                 if self.stat_transport:
                     data = '{},{}'.format(self.mode, rssi_avg)
                     self.stat_transport.sendto(data.encode())
 
     async def stop(self):
-        logger.info("Stopping subprocesses")
+        logger.info("Chan %s Stopping subprocesses", self.name)
         self.rx_proc.terminate()
         self.tx_proc.terminate()
 
 
 async def main(args):
-    chan = Channel(args.mode, args.fec, args.iface)
-    await chan.start()
+    bench_chan = Channel('bench', args.mode, args.iface, [1,2], args.fec, 7557, 7556)
+    ft_chan = Channel('ft', args.mode, args.iface, [3, 4], args.fec, 6557, 6556)
+    telem_chan = Channel('telem', args.mode, args.iface, [5, 6], args.fec, 5557, 5556)
+    await bench_chan.start()
+    await ft_chan.start()
+    await telem_chan.start()
     try:
         while True:
             await asyncio.sleep(1)
     finally:
-        await chan.stop()
+        await bench_chan.stop()
+        await ft_chan.stop()
+        await telem_chan.stop()
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='SVP WFB Launcher')
