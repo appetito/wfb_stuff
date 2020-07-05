@@ -160,5 +160,7 @@ if __name__ == '__main__':
 
     try:
         asyncio.run(main(args))
+    except KeyboardInterrupt:
+        print('Stopping all')
     finally:
         print('FIN!')
