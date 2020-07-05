@@ -112,7 +112,7 @@ class Channel:
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE)
 
-
+        loop = asyncio.get_running_loop()
         self.stat_transport, _ = await loop.create_datagram_endpoint(
             DummyProto,
             remote_addr=('127.0.0.1', 5800))
