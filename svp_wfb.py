@@ -92,11 +92,12 @@ class Channel:
             'mode': self.mode,
             'k': int(self.fec.split('/')[0]),
             'n': int(self.fec.split('/')[1]),
-            'rx_port': 1 if self.mode == 'gs' else 2,
-            'tx_port': 2 if self.mode == 'gs' else 1,
+            'rx_port': 1 if self.mode == 'ground' else 2,
+            'tx_port': 2 if self.mode == 'ground' else 1,
+            'key': 'gs' if self.mode == 'ground' else 'drone'
         }
-        rx_proc_cmd = 'wfb_rx -K /etc/{mode}.key -p {rx_port} -u 7556 -k {k} -n {n} {iface}'.format(**params)
-        tx_proc_cmd = 'wfb_tx -K /etc/{mode}.key -p {tx_port} -u 7557 -k {k} -n {n} {iface}'.format(**params)
+        rx_proc_cmd = 'wfb_rx -K /etc/{key}.key -p {rx_port} -u 7556 -k {k} -n {n} {iface}'.format(**params)
+        tx_proc_cmd = 'wfb_tx -K /etc/{key}.key -p {tx_port} -u 7557 -k {k} -n {n} {iface}'.format(**params)
         
         logger.info("Starting RX subprocess: %s", rx_proc_cmd)
         self.rx_proc = await asyncio.create_subprocess_shell(
@@ -130,7 +131,8 @@ class Channel:
                 rssi_avg = raw_data.split(':')[-2]
                 logger.info("RX AVG RSSI: %s", rssi_avg)
                 if self.stat_transport:
-                    self.stat_transport.sendto(rssi_avg.encode())
+                    data = '{},{}'.format(self.mode, rssi_avg)
+                    self.stat_transport.sendto(data.encode())
 
     async def stop(self):
         self.rx_proc.terminate()
@@ -148,7 +150,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='SVP WFB Launcher')
 
     parser.add_argument('--fec', type=str, required=True, help='fec params k/n (8/12 default, 1/2 for telemetry)')
-    parser.add_argument('--mode', type=str, required=True, help='Instance mode - gs or drone')
+    parser.add_argument('--mode', type=str, required=True, help='Instance mode - ground or air')
     parser.add_argument('iface', type=str, help='Wlan interface to use')
 
     args = parser.parse_args()
