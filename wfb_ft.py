@@ -210,7 +210,7 @@ class FtpServer(WFBNode):
 
     ACK_TIMEOUT = 0.05
     SEND_FILE_TIMEOUT = 10
-    CHUNK_SIZE = 1424
+    CHUNK_SIZE = 1224
 
     def __init__(self, inport, outport, root_dir):
         super().__init__(inport, outport)
@@ -294,7 +294,7 @@ class FtpServer(WFBNode):
         while True:
             logger.debug('Sending chunk %s, %s', sequence, offset)
             self.send_message(msg)
-            self.send_message(msg)
+            #self.send_message(msg)
             try:
                 await asyncio.wait_for(ack_event.wait(), timeout=self.ACK_TIMEOUT)
             except asyncio.TimeoutError:
@@ -337,7 +337,7 @@ class FtpServer(WFBNode):
 
 class FtpClient(WFBNode):
 
-    ACK_TIMEOUT = 0.01
+    ACK_TIMEOUT = 0.05
 
     def __init__(self, inport, outport):
         super().__init__(inport, outport)
