@@ -41,6 +41,21 @@ logger = logging.getLogger(__name__)
 logging.basicConfig(level='DEBUG', format="%(asctime)s %(levelname)-8s %(name)s: %(message)s")
 
 
+class DummyProto:
+
+    def connection_made(self, transport):
+        print('Dummy connection_made:', transport)
+
+    def datagram_received(self, data, addr):
+        print('Dummy datagram_received:', addr)
+
+    def error_received(self, exc):
+        print('Dummy Error received:', exc)
+
+    def connection_lost(self, exc):
+        print("Dummy Connection closed", exc)
+        
+
 class Channel:
     """
     WFB Channel
@@ -49,6 +64,7 @@ class Channel:
     def __init__(self, mode, fec, iface):
         self.rx_proc = None
         self.tx_proc = None
+        self.stat_transport = None
         self.counter = 0
         self.mode = mode
         self.fec = fec
@@ -95,6 +111,12 @@ class Channel:
             stdin=subprocess.PIPE,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE)
+
+
+        self.stat_transport, _ = await loop.create_datagram_endpoint(
+            DummyProto,
+            remote_addr=('127.0.0.1', 5800))
+
         asyncio.create_task(self.report())
 
     async def report(self):
@@ -107,6 +129,8 @@ class Channel:
             if 'ANT' in raw_data:
                 rssi_avg = raw_data.split(':')[-2]
                 logger.info("RX AVG RSSI: %s", rssi_avg)
+                if self.stat_transport:
+                    self.stat_transport.sendto(rssi_avg.encode())
 
     async def stop(self):
         self.rx_proc.terminate()
