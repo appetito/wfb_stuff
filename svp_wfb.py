@@ -310,7 +310,7 @@ class Channel:
         while True:
             raw_data = await self.rx_proc.stdout.readline()
             raw_data = raw_data.decode()
-            # logger.info("REPORT %s %s", self.name, raw_data)
+            logger.info("REPORT %s %s", self.name, raw_data)
             # 9638071\tANT\t0\t411:-75:-71:-68
 
             # fprintf(fp, "%" PRIu64 "\tPKT\t%u:%u:%u:%u:%u:%u\n",
