@@ -261,7 +261,7 @@ class Channel:
             remote_addr=('127.0.0.1', 5800))
 
         asyncio.create_task(self.report())
-        asyncio.create_task(self.watch_errors())
+        # asyncio.create_task(self.watch_errors())
 
     async def start_rx(self):
         iface = self.iface
@@ -324,13 +324,13 @@ class Channel:
                     data = '{},{}'.format(self.mode, rssi_avg)
                     self.stat_transport.sendto(data.encode())
 
-    async def watch_errors(self):
-        logger.info("Chan [%s] starting watch_errors task", self.name)
-        while True:
-            raw_data = await self.rx_proc.stderr.readline()
-            raw_data = raw_data.decode().strip()
-            if not raw_data.endswith('packets lost'):
-                logger.info("STDERR %s %s", self.name, raw_data)
+    # async def watch_errors(self):
+    #     logger.info("Chan [%s] starting watch_errors task", self.name)
+    #     while True:
+    #         raw_data = await self.rx_proc.stderr.readline()
+    #         raw_data = raw_data.decode().strip()
+    #         if not raw_data.endswith('packets lost'):
+    #             logger.info("STDERR %s %s", self.name, raw_data)
 
     async def stop(self):
         logger.info("Chan [%s] Stopping subprocesses", self.name)
