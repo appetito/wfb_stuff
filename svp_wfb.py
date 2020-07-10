@@ -147,7 +147,7 @@ class MavProxy:
 
     async def start(self):
         logger.info("Starting MAV Proxy")
-
+        loop = asyncio.get_running_loop()
         uplink, _ = await loop.create_datagram_endpoint(
             lambda: UDPUplinkProtocol(),
             remote_addr=('127.0.0.1', 5557))
@@ -239,7 +239,7 @@ class Channel:
             await asyncio.sleep(0.1)
             raw_data = await self.rx_proc.stdout.readline()
             raw_data = raw_data.decode()
-            # logger.info("REPORT %s %s %s %s", self.name, raw_data, self.tx_proc.pid, self.rx_proc.pid)
+            logger.info("REPORT %s %s", self.name, raw_data)
             #logger.info("STAT: %s", raw_data)
             # 9638071\tANT\t0\t411:-75:-71:-68
             if 'ANT' in raw_data:
