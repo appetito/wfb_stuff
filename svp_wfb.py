@@ -127,7 +127,7 @@ class MavProxy:
             await asyncio.sleep(1)
             dt = loop.time() - ts
             ts = loop.time()
-            radio_rssi = 127 + 128 + int(self.telem_chan.rssi.rssi)
+            radio_rssi = 127 + 128 + int(self.telem_chan.rssi)
             logger.info("MAV UP: %s", up.bytes_cnt / dt)
             logger.info("MAV DOWN: %s", down.bytes_cnt / dt)
             logger.info("MAV RSSI: %s (%s)", self.telem_chan.rssi, radio_rssi)
@@ -142,7 +142,7 @@ class MavProxy:
                 remnoise=0,
                 rxerrors=0,
                 fixed=0)
-            data = msg.pack(mav)
+            data = msg.pack(self.mav)
             gcs.sendto(data)
 
     async def start(self):
@@ -154,7 +154,7 @@ class MavProxy:
 
         gs_link, gs_proto = await loop.create_datagram_endpoint(
             lambda: GCSLinkProtocol(uplink),
-            remote_addr=('192.168.4.8', 14550), local_addr=('0.0.0.0', 5999))
+            remote_addr=('192.168.31.108', 14550), local_addr=('0.0.0.0', 5999))
 
         _, downlink_proto = await loop.create_datagram_endpoint(
             lambda: UDPDownlinkProtocol(gs_link),
