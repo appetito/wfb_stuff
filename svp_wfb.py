@@ -120,7 +120,7 @@ class MavProxy:
         self.telem_chan = telem_chan
         self.mav = common.MAVLink(None, srcSystem=1, srcComponent=1)
 
-    async def report(self, loop, up, down, gcs):
+    async def report(self, up, down, gcs):
         loop = asyncio.get_running_loop()
         ts = loop.time()
         while True:
