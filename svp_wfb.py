@@ -276,10 +276,10 @@ class Channel:
         # rx_proc_cmd = 'wfb_rx -K /etc/{key}.key -p {rx_port} -u {udp_out} -k {k} -n {n} {iface}'.format(**params)
         rx_args = ['-K', f'/etc/{key}.key', '-p', f'{rx_port}', '-u', f'{udp_out}', '-k', k, '-n', n, iface]
         
-        logger.info("Chan [%s] starting RX subprocess: %s", self.name, rx_proc_cmd)
+        logger.info("Chan [%s] starting RX subprocess: %s", self.name, rx_args)
         self.rx_proc = await asyncio.create_subprocess_exec(
             'wfb_rx',
-            *rx_args.
+            *rx_args,
             stdin=subprocess.PIPE,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE)
@@ -297,7 +297,7 @@ class Channel:
 
         tx_args = ['-K', f'/etc/{key}.key', '-p', f'{tx_port}', '-u', f'{udp_in}', '-k', k, '-n', n, iface]
 
-        logger.info("Chan [%s] starting TX subprocess: %s", self.name, tx_proc_cmd)
+        logger.info("Chan [%s] starting TX subprocess: %s", self.name, tx_args)
         self.tx_proc = await asyncio.create_subprocess_exec(
             'wfb_tx',
             *tx_args,
