@@ -160,7 +160,7 @@ class MavProxy:
             lambda: UDPDownlinkProtocol(gs_link),
             local_addr=('127.0.0.1', 5556))
 
-        asyncio.create_task(report(gs_proto, downlink_proto, gs_link))
+        asyncio.create_task(self.report(gs_proto, downlink_proto, gs_link))
 
 
 class DummyProto:
