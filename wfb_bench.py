@@ -86,7 +86,7 @@ class BaseProtocol:
 
     def send_local_stat(self):
         # print('Lat', self.local_stat.latency, self.local_stat.rssi)
-        payload = struct.pack('LLLLLQi',
+        payload = struct.pack('>LLLLLQi',
             self.local_stat.packets_recv_cnt,
             self.local_stat.bytes_recv_cnt,
             self.local_stat.packets_send_cnt,
@@ -119,7 +119,7 @@ class BaseProtocol:
             return
         
         if data[:5] == b'stat:':
-            pr, br, ps, bs, loss, latency, rssi = struct.unpack('LLLLLQi', data[5:])
+            pr, br, ps, bs, loss, latency, rssi = struct.unpack('>LLLLLQi', data[5:])
             self.remote_stat.update(
                 packets_recv_cnt = pr,
                 bytes_recv_cnt = br,
