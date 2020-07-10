@@ -152,6 +152,8 @@ class MavProxy:
                     remnoise=0,
                     rxerrors=0,
                     fixed=0)
+                data = msg.pack(self.mav)
+                gcs.sendto(data)
             else:
                 msg = common.MAVLink_radio_status_message(
                     rssi=radio_rssi,
@@ -161,8 +163,9 @@ class MavProxy:
                     remnoise=0,
                     rxerrors=0,
                     fixed=0)
-            data = msg.pack(self.mav)
-            gcs.sendto(data, ('127.0.0.1', 5557))
+                data = msg.pack(self.mav)
+                gcs.sendto(data, ('127.0.0.1', 5557))
+
 
     async def start(self):
         logger.info("Starting MAV Proxy")
@@ -174,7 +177,7 @@ class MavProxy:
         if self.mode == 'ground':
             gs_link, gs_proto = await loop.create_datagram_endpoint(
                 lambda: GCSLinkProtocol(uplink),
-                remote_addr=('192.168.4.8', 14550), local_addr=('0.0.0.0', 5999))
+                remote_addr=('192.168.31.108', 14550), local_addr=('0.0.0.0', 5999))
         else:
             gs_link, gs_proto = await loop.create_datagram_endpoint(
                 lambda: GCSLinkProtocol(uplink),
