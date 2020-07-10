@@ -329,7 +329,8 @@ class Channel:
         while True:
             raw_data = await self.rx_proc.stderr.readline()
             raw_data = raw_data.decode()
-            logger.info("STDERR %s %s", self.name, raw_data)
+            if not raw_data.endswith('packets lost'):
+                logger.info("STDERR %s %s", self.name, raw_data)
 
     async def stop(self):
         logger.info("Chan [%s] Stopping subprocesses", self.name)
