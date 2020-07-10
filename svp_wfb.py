@@ -328,7 +328,7 @@ class Channel:
         logger.info("Chan [%s] starting watch_errors task", self.name)
         while True:
             raw_data = await self.rx_proc.stderr.readline()
-            raw_data = raw_data.decode()
+            raw_data = raw_data.decode().strip()
             if not raw_data.endswith('packets lost'):
                 logger.info("STDERR %s %s", self.name, raw_data)
 
