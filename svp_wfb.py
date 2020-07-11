@@ -125,9 +125,10 @@ class GCSLinkProtocol:
 
 class MavProxy:
 
-    def __init__(self, mode, telem_chan):
+    def __init__(self, mode, mavlink, telem_chan):
         self.mode = mode
         self.telem_chan = telem_chan
+        self.mavlink = mavlink.split(':')[0], int(mavlink.split(':')[1])
         self.mav = common.MAVLink(None, srcSystem=1, srcComponent=1)
 
     async def report(self, up, down, gcs):
@@ -177,11 +178,11 @@ class MavProxy:
         if self.mode == 'ground':
             gs_link, gs_proto = await loop.create_datagram_endpoint(
                 lambda: GCSLinkProtocol(uplink),
-                remote_addr=('192.168.31.108', 14550), local_addr=('0.0.0.0', 5999))
+                remote_addr=self.mavlink, local_addr=('0.0.0.0', 5999))
         else:
             gs_link, gs_proto = await loop.create_datagram_endpoint(
                 lambda: GCSLinkProtocol(uplink),
-                local_addr=('127.0.0.1', 14770))
+                local_addr=self.mavlink)
 
         _, downlink_proto = await loop.create_datagram_endpoint(
             lambda: UDPDownlinkProtocol(gs_proto),
@@ -343,7 +344,7 @@ async def main(args):
     ft_chan = Channel('ft', args.mode, args.iface, [3, 4], args.fec, 6557, 6556)
     telem_chan = Channel('telem', args.mode, args.iface, [5, 6], args.fec, 5557, 5556)
 
-    mav_proxy = MavProxy(args.mode, telem_chan)
+    mav_proxy = MavProxy(args.mode, args.mavlink, telem_chan)
 
     await bench_chan.start()
     await ft_chan.start()
@@ -431,6 +432,7 @@ if __name__ == '__main__':
 
     parser.add_argument('--mode', type=str, required=True, help='Instance mode - ground or air')
     parser.add_argument('--fec', type=str, required=True, help='fec params k/n (8/12 default, 1/2 for telemetry)')
+    parser.add_argument('--mavlink', type=str, required=True, help='MAVLink endpoint - GCS for ground, mavrouter for air')
     parser.add_argument('--freq', type=int, default=2432, help='WiFi frequency default 2432')
     parser.add_argument('--txpower', type=int, default=58, help='TX power (20-63) default  58')
     parser.add_argument('--bitrate', type=float, default=11, help='bitrate (2, 5.5, 11) default 11')
