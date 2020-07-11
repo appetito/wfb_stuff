@@ -226,33 +226,7 @@ class Channel:
         self.rssi = -100
 
     async def start(self):
-        # params = {
-        #     'iface': self.iface,
-        #     'mode': self.mode,
-        #     'udp_in': self.udp_in,
-        #     'udp_out': self.udp_out,
-        #     'k': int(self.fec.split('/')[0]),
-        #     'n': int(self.fec.split('/')[1]),
-        #     'rx_port': self.num[0] if self.mode == 'ground' else self.num[1],
-        #     'tx_port': self.num[1] if self.mode == 'ground' else self.num[0],
-        #     'key': 'gs' if self.mode == 'ground' else 'drone'
-        # }
-        # rx_proc_cmd = 'wfb_rx -K /etc/{key}.key -p {rx_port} -u {udp_out} -k {k} -n {n} {iface}'.format(**params)
-        # tx_proc_cmd = 'wfb_tx -K /etc/{key}.key -p {tx_port} -u {udp_in} -k {k} -n {n} {iface}'.format(**params)
-        
-        # logger.info("Chan [%s] starting RX subprocess: %s", self.name, rx_proc_cmd)
-        # self.rx_proc = await asyncio.create_subprocess_shell(
-        #     rx_proc_cmd,
-        #     stdin=subprocess.PIPE,
-        #     stdout=subprocess.PIPE,
-        #     stderr=subprocess.PIPE)
 
-        # logger.info("Chan [%s] starting TX subprocess: %s", self.name, tx_proc_cmd)
-        # self.tx_proc = await asyncio.create_subprocess_shell(
-        #     tx_proc_cmd,
-        #     stdin=subprocess.PIPE,
-        #     stdout=subprocess.PIPE,
-        #     stderr=subprocess.PIPE)
         await self.start_rx()
         await self.start_tx()
 
@@ -266,15 +240,11 @@ class Channel:
 
     async def start_rx(self):
         iface = self.iface
-        # 'mode': self.mode
-        # udp_in = self.udp_in
         udp_out = self.udp_out
         k = self.fec.split('/')[0]
         n = self.fec.split('/')[1]
         rx_port = self.num[0] if self.mode == 'ground' else self.num[1]
-        # tx_port = self.num[1] if self.mode == 'ground' else self.num[0]
         key = 'gs' if self.mode == 'ground' else 'drone'
-        # rx_proc_cmd = 'wfb_rx -K /etc/{key}.key -p {rx_port} -u {udp_out} -k {k} -n {n} {iface}'.format(**params)
         rx_args = ['-K', f'/etc/{key}.key', '-p', f'{rx_port}', '-u', f'{udp_out}', '-k', k, '-n', n, iface]
         
         logger.info("Chan [%s] starting RX subprocess: %s", self.name, ' '.join(rx_args))
@@ -287,12 +257,9 @@ class Channel:
 
     async def start_tx(self):
         iface = self.iface
-        # 'mode': self.mode
         udp_in = self.udp_in
-        # 'udp_out': self.udp_out
         k = self.fec.split('/')[0]
         n = self.fec.split('/')[1]
-        # 'rx_port': self.num[0] if self.mode == 'ground' else self.num[1]
         tx_port = self.num[1] if self.mode == 'ground' else self.num[0]
         key = 'gs' if self.mode == 'ground' else 'drone'
 
@@ -308,10 +275,13 @@ class Channel:
 
     async def report(self):
         logger.info("Chan [%s] starting report task", self.name)
+        loop = asyncio.get_running_loop()
         while True:
+            wd = loop.call_later(3, self.restart_rx)
             raw_data = await self.rx_proc.stdout.readline()
             raw_data = raw_data.decode()
-            logger.info("REPORT %s %s", self.name, raw_data)
+            wd.cancel()
+            # logger.info("REPORT %s %s", self.name, raw_data.strip())
             # 9638071\tANT\t0\t411:-75:-71:-68
 
             # fprintf(fp, "%" PRIu64 "\tPKT\t%u:%u:%u:%u:%u:%u\n",
@@ -325,6 +295,11 @@ class Channel:
                     data = '{},{}'.format(self.mode, rssi_avg)
                     self.stat_transport.sendto(data.encode())
 
+    async def restart_rx(self):
+        logger.info("Chan [%s] Restart RX!!!", self.name)
+        self.rx_proc.terminate()
+        await asyncio.sleep(1)
+        await self.start_rx()
     # async def watch_errors(self):
     #     logger.info("Chan [%s] starting watch_errors task", self.name)
     #     while True:
