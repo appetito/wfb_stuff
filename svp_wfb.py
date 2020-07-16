@@ -235,7 +235,7 @@ class Channel:
             DummyProto,
             remote_addr=('127.0.0.1', 5800))
 
-        asyncio.create_task(self.report())
+        self.report_task = asyncio.create_task(self.report())
         # asyncio.create_task(self.watch_errors())
 
     async def start_rx(self):
@@ -299,9 +299,14 @@ class Channel:
     async def restart_rx(self, delay):
         await asyncio.sleep(delay)
         logger.info("Chan [%s] Restart RX!!!", self.name)
+        self.report_task.cancel()
+        await asyncio.wait([self.report_task])
+        logger.info("Chan [%s] report task cancelld", self.name)
         self.rx_proc.terminate()
+        logger.info("Chan [%s] pev proc terminated", self.name)
         await asyncio.sleep(1)
         await self.start_rx()
+        logger.info("Chan [%s] RX restarted", self.name)
     # async def watch_errors(self):
     #     logger.info("Chan [%s] starting watch_errors task", self.name)
     #     while True:
