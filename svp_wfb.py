@@ -277,7 +277,8 @@ class Channel:
         logger.info("Chan [%s] starting report task", self.name)
         loop = asyncio.get_running_loop()
         while True:
-            wd = loop.call_later(3, self.restart_rx)
+            # wd = loop.call_later(3, self.restart_rx)
+            wd = asyncio.create_task(self.restart_rx(3))
             raw_data = await self.rx_proc.stdout.readline()
             raw_data = raw_data.decode()
             wd.cancel()
@@ -295,7 +296,8 @@ class Channel:
                     data = '{},{}'.format(self.mode, rssi_avg)
                     self.stat_transport.sendto(data.encode())
 
-    async def restart_rx(self):
+    async def restart_rx(self, delay):
+        await asyncio.sleep(delay)
         logger.info("Chan [%s] Restart RX!!!", self.name)
         self.rx_proc.terminate()
         await asyncio.sleep(1)
