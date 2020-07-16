@@ -277,8 +277,7 @@ class Channel:
         logger.info("Chan [%s] starting report task", self.name)
         loop = asyncio.get_running_loop()
         while True:
-            # wd = loop.call_later(3, self.restart_rx)
-            wd = asyncio.create_task(self.restart_rx(3))
+            wd = asyncio.create_task(self.restart_rx(2))
             raw_data = await self.rx_proc.stdout.readline()
             raw_data = raw_data.decode()
             wd.cancel()
@@ -304,16 +303,11 @@ class Channel:
         logger.info("Chan [%s] report task cancelld", self.name)
         self.rx_proc.terminate()
         logger.info("Chan [%s] pev proc terminated", self.name)
-        await asyncio.sleep(1)
+        await asyncio.sleep(0.2)
         await self.start_rx()
+        self.report_task = asyncio.create_task(self.report())
         logger.info("Chan [%s] RX restarted", self.name)
-    # async def watch_errors(self):
-    #     logger.info("Chan [%s] starting watch_errors task", self.name)
-    #     while True:
-    #         raw_data = await self.rx_proc.stderr.readline()
-    #         raw_data = raw_data.decode().strip()
-    #         if not raw_data.endswith('packets lost'):
-    #             logger.info("STDERR %s %s", self.name, raw_data)
+
 
     async def stop(self):
         logger.info("Chan [%s] Stopping subprocesses", self.name)
