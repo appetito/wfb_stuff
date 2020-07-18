@@ -68,7 +68,7 @@ L(dB) = 0.25*(f**0.39)*(d**0.25) * (a**0.05)
 !!!!!!!!!
 """
 
-file_rotate = logging.handlers.TimedRotatingFileHandler('/var/logs/wfb/svp_wfb.log', when='midnight', interval=1, backupCount=10)
+file_rotate = logging.handlers.TimedRotatingFileHandler('/var/log/wfb/svp_wfb.log', when='midnight', interval=1, backupCount=10)
 console = logging.handlers.StreamHandler()
 
 logger = logging.getLogger('main')
