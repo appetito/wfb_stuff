@@ -12,6 +12,14 @@ from pymavlink.dialects.v20 import common
 mav = common.MAVLink(None, srcSystem=1, srcComponent=77)
 
 
+CAMERA_MSGS = {
+    common.MAVLINK_MSG_ID_CAMERA_TRIGGER,
+    common.MAVLINK_MSG_ID_COMMAND_INT,
+    commn.MAVLINK_MSG_ID_COMMAND_LONG,
+    common.MAV_CMD_DO_DIGICAM_CONTROL,
+}
+
+
 class MavProtocol:
 
     def __init__(self):
@@ -28,7 +36,8 @@ class MavProtocol:
             print("New connection:", addr)
         msgs = mav.parse_buffer(data)
         for m in msgs:
-            print(m.to_dict())
+            if m.get_msgId() in CAMERA_MSGS:
+                print(m.to_dict())
         # self.output_proto.send(data)
 
     def send(self, data):
