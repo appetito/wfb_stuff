@@ -15,7 +15,7 @@ mav = common.MAVLink(None, srcSystem=1, srcComponent=77)
 CAMERA_MSGS = {
     common.MAVLINK_MSG_ID_CAMERA_TRIGGER,
     common.MAVLINK_MSG_ID_COMMAND_INT,
-    commn.MAVLINK_MSG_ID_COMMAND_LONG,
+    common.MAVLINK_MSG_ID_COMMAND_LONG,
     common.MAV_CMD_DO_DIGICAM_CONTROL,
 }
 
