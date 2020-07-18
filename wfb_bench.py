@@ -270,9 +270,9 @@ async def main(inport, outport, statport, packetsize, sendpause, mode):
     report_task = asyncio.ensure_future(report(loop, out_proto, in_proto, stat_proto))
 
     try:
-        await asyncio.sleep(3600)  # Serve for 1 hour.
+        await asyncio.sleep(3600 * 12)  # Serve for 12 hour.
     finally:
-        transport.close()
+        pass
 
 
 if __name__ == '__main__':

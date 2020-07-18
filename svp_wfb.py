@@ -236,6 +236,7 @@ class Channel:
             remote_addr=('127.0.0.1', 5800))
 
         self.report_task = asyncio.create_task(self.report())
+        self.errors_task = asyncio.create_task(self.watch_errors())
         # asyncio.create_task(self.watch_errors())
 
     async def start_rx(self):
@@ -295,17 +296,27 @@ class Channel:
                     data = '{},{}'.format(self.mode, rssi_avg)
                     self.stat_transport.sendto(data.encode())
 
+    async def watch_errors(self):
+        logger.info("Chan [%s] starting watch_errors", self.name)
+        while True:
+            raw_data = await self.rx_proc.stderr.readline()
+            raw_data = raw_data.decode()
+            logger.info("Chan %s RX ERROR: %s", self.name, raw_data)
+
+
     async def restart_rx(self, delay):
         await asyncio.sleep(delay)
         logger.info("Chan [%s] Restart RX!!!", self.name)
         self.report_task.cancel()
-        await asyncio.wait([self.report_task])
+        self.errors_task.cancel()
+        await asyncio.wait([self.report_task, self.errors_task])
         logger.info("Chan [%s] report task cancelld", self.name)
         self.rx_proc.terminate()
         logger.info("Chan [%s] pev proc terminated", self.name)
         await asyncio.sleep(0.2)
         await self.start_rx()
         self.report_task = asyncio.create_task(self.report())
+        self.errors_task = asyncio.create_task(self.watch_errors())
         logger.info("Chan [%s] RX restarted", self.name)
 
 
