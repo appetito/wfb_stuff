@@ -69,7 +69,7 @@ L(dB) = 0.25*(f**0.39)*(d**0.25) * (a**0.05)
 """
 
 file_rotate = logging.handlers.TimedRotatingFileHandler('/var/log/wfb/svp_wfb.log', when='midnight', interval=1, backupCount=10)
-console = logging.handlers.StreamHandler()
+console = logging.StreamHandler()
 
 logger = logging.getLogger('main')
 logging.basicConfig(level='DEBUG', format="%(asctime)s %(levelname)-8s %(name)s: %(message)s", handlers=[file_rotate, console])
