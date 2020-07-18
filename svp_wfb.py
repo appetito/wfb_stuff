@@ -180,12 +180,12 @@ class MavProxy:
             remote_addr=('127.0.0.1', 5557))
 
         if self.mode == 'ground':
-            # gs_link, gs_proto = await loop.create_datagram_endpoint(
-            #     lambda: GCSLinkProtocol(uplink),
-            #     remote_addr=self.mavlink, local_addr=('0.0.0.0', 5999))
             gs_link, gs_proto = await loop.create_datagram_endpoint(
                 lambda: GCSLinkProtocol(uplink),
-                local_addr=self.mavlink)
+                remote_addr=self.mavlink, local_addr=('0.0.0.0', 5999))
+            # gs_link, gs_proto = await loop.create_datagram_endpoint(
+            #     lambda: GCSLinkProtocol(uplink),
+            #     local_addr=self.mavlink)
         else:
             gs_link, gs_proto = await loop.create_datagram_endpoint(
                 lambda: GCSLinkProtocol(uplink),
