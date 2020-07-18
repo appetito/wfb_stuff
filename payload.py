@@ -34,10 +34,14 @@ class MavProtocol:
         if addr != self.ra:
             self.ra = addr
             print("New connection:", addr)
-        msgs = mav.parse_buffer(data)
-        for m in msgs:
-            if m.get_msgId() in CAMERA_MSGS:
-                print(m.to_dict())
+        try:
+            msgs = mav.parse_buffer(data)
+        except common.MAVError:
+            pass
+        else:
+            for m in msgs:
+                if m.get_msgId() in CAMERA_MSGS:
+                    print(m.to_dict())
         # self.output_proto.send(data)
 
     def send(self, data):
