@@ -114,7 +114,6 @@ class GCSLinkProtocol:
         self.ra = addr
         self.bytes_cnt += len(data)
         self.uplink.sendto(data, ('127.0.0.1', 5557))
-        self.uplink.sendto(data, ('127.0.0.1', 5557))
 
     def error_received(self, exc):
         pass
